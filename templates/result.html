@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Election Results</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      min-height: 100vh;
+    }
+    .result-table-container {
+      margin: 40px auto;
+      max-width: 900px;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+    }
+    .result-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+    .result-table thead {
+      background: linear-gradient(to right, #4f6df5 0%, #3b5bdb 100%);
+      color: white;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .result-table th {
+      padding: 18px 20px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 1.05rem;
+    }
+    .result-table th:first-child {
+      border-top-left-radius: 12px;
+    }
+    .result-table th:last-child {
+      border-top-right-radius: 12px;
+    }
+    .result-table td {
+      padding: 16px 20px;
+      border-bottom: 1px solid #edf2f7;
+      color: #4a5568;
+    }
+    .result-table tbody tr {
+      transition: all 0.25s ease;
+    }
+    .result-table tbody tr:hover {
+      background: #f8fafc;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+    .candidate-photo {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      object-fit: cover;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      border: 3px solid white;
+    }
+    .votes-badge {
+      background: #ebf4ff;
+      color: #3b5bdb;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+    .winner-badge {
+      background: linear-gradient(to right, #48bb78, #38a169);
+      color: white;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-left: 8px;
+    }
+  </style>
+</head>
+<body class="py-8 px-4">
+  <div class="result-table-container">
+    <div class="text-center mb-8">
+      <h1 class="text-3xl font-bold text-gray-800 mb-2">Election Results</h1>
+      <p class="text-gray-600">Official results for the student council election</p>
+    </div>
+
+    <table class="result-table">
+      <thead>
+        <tr>
+          <th>Candidate</th>
+          <th>Election Symbol</th>
+          <th>Party Name</th>
+          <th>Votes</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for result in results %}
+        <tr class="{% if result.is_winner %}bg-green-50{% endif %}">
+          <td class="font-semibold text-gray-800">{{ result.name }}</td>
+          <td>
+            <img src="{{ result.photo }}" alt="Election Symbol" class="candidate-photo" />
+          </td>
+          <td>{{ result.party_name }}</td>
+          <td>
+            <span class="votes-badge">{{ result.votes }} votes</span>
+            {% if result.is_winner %}
+              <span class="winner-badge">🏆 WINNER</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="mt-8 pt-6 border-t border-gray-100">
+      <div class="flex justify-between items-center">
+        <div class="text-sm text-gray-500">
+          Total votes cast: {{ results | sum(attribute='votes') }}
+        </div>
+        <div class="text-sm text-gray-500">
+          Election date: {{ election_date }}
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

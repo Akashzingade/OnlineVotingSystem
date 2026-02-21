@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vote for Your Candidate</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      min-height: 100vh;
+    }
+    .card {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      border: 1px solid rgba(255, 255, 255, 0.5);
+    }
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+    }
+    .radio-button {
+      accent-color: #3b82f6;
+      transform: scale(1.3);
+    }
+    .profile-photo {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: 3px solid #3b82f6;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    .profile-photo:hover {
+      transform: scale(1.05);
+    }
+    .profile-modal {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+      animation: fadeIn 0.3s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .candidate-photo {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      border: 3px solid #e2e8f0;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-6">
+  <!-- Header Section -->
+  <div class="w-full max-w-6xl flex justify-between items-center mb-8">
+    <h1 class="text-3xl font-bold text-gray-800">Election Voting</h1>
+    <a href="/logout" class="px-5 py-2 bg-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-300 transition">
+      Logout
+    </a>
+  </div>
+
+  <!-- User Profile Section -->
+  <div class="flex items-center justify-center mb-8">
+    <img src="{{ user['photo'] }}" alt="User Photo" class="profile-photo" onclick="openProfileModal()" />
+  </div>
+
+  <!-- Profile Modal -->
+  <div id="profileModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div class="profile-modal p-8 w-full max-w-md relative">
+      <button onclick="closeProfileModal()" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-xl">&times;</button>
+      <h2 class="text-2xl font-bold mb-6 text-gray-800 text-center">Your Profile</h2>
+      <div class="flex flex-col items-center mb-6">
+        <img src="{{ user['photo'] }}" alt="User Photo" class="w-32 h-32 rounded-full mb-4 border-4 border-gray-100" />
+        <h3 class="text-xl font-semibold text-gray-800">{{ user['name'] }}</h3>
+      </div>
+      <div class="space-y-3 text-gray-600">
+        <p><strong class="text-gray-800">Username:</strong> {{ user['username'] }}</p>
+        <p><strong class="text-gray-800">Email:</strong> {{ user['email'] }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Voting Instructions -->
+  <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-8 max-w-3xl w-full rounded">
+    <p class="text-blue-700"><strong>Instructions:</strong> Please select one candidate from the options below and submit your vote.</p>
+  </div>
+
+  <!-- Candidates Grid -->
+  <form id="voteForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-6xl">
+    {% for candidate in candidates %}
+    <div class="card p-6 flex flex-col items-center text-center">
+      <img src="{{ candidate[2] }}" alt="Candidate Photo" class="candidate-photo mb-4" />
+      <h2 class="text-xl font-semibold text-gray-800 mb-2">{{ candidate[0] }}</h2>
+      <p class="text-gray-600 mb-2"><strong>Party:</strong> {{ candidate[1] }}</p>
+      <p class="text-gray-600 mb-4 text-sm">{{ candidate[3] }}</p>
+      <label class="flex items-center mt-auto">
+        <input type="radio" name="selectedCandidate" value="{{ candidate[0] }}" class="radio-button mr-2" required />
+        <span class="text-blue-600 font-medium">Select Candidate</span>
+      </label>
+    </div>
+    {% endfor %}
+
+    <!-- Submit Button -->
+    <div class="col-span-full flex justify-center mt-8">
+      <button type="submit" class="px-8 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition shadow-md">
+        Submit Vote
+      </button>
+    </div>
+  </form>
+
+  <!-- Success Modal -->
+  <div id="successModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-lg p-8 text-center shadow-xl w-full max-w-md">
+      <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+        </svg>
+      </div>
+      <h2 class="text-2xl font-bold text-gray-800 mb-4">Vote Submitted Successfully</h2>
+      <p class="text-gray-600 mb-6">Thank you for participating in the election.</p>
+      <a href="/" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+        Continue
+      </a>
+    </div>
+  </div>
+
+  <script>
+    function openProfileModal() {
+      document.getElementById('profileModal').classList.remove('hidden');
+    }
+    function closeProfileModal() {
+      document.getElementById('profileModal').classList.add('hidden');
+    }
+
+    document.getElementById('voteForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const selectedCandidate = document.querySelector('input[name="selectedCandidate"]:checked').value;
+
+      const response = await fetch('/submit-vote', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ candidate: selectedCandidate }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        document.getElementById('successModal').classList.remove('hidden');
+      } else {
+        alert(result.message || 'Failed to submit vote.');
+      }
+    });
+  </script>
+</body>
+</html>

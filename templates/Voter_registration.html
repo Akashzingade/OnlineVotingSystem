@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Voter Registration System</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .card {
+      background: white;
+      border-radius: 1rem;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    }
+    .form-input {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      color: #334155;
+      transition: all 0.3s ease;
+    }
+    .form-input:focus {
+      background: white;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+      outline: none;
+    }
+    .form-input::placeholder {
+      color: #94a3b8;
+    }
+    .btn-primary {
+      background: linear-gradient(90deg, #4f46e5 0%, #6366f1 100%);
+      color: white;
+      transition: all 0.3s ease;
+    }
+    .btn-primary:hover {
+      background: linear-gradient(90deg, #4338ca 0%, #4f46e5 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+    }
+    .btn-secondary {
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      color: #475569;
+      transition: all 0.3s ease;
+    }
+    .btn-secondary:hover {
+      background: #e2e8f0;
+      transform: translateY(-2px);
+    }
+    .modal-content {
+      background: white;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    }
+    .section-title {
+      color: #1e293b;
+      position: relative;
+      padding-bottom: 0.5rem;
+    }
+    .section-title:after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 40px;
+      height: 3px;
+      background: linear-gradient(90deg, #4f46e5 0%, #6366f1 100%);
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 md:p-8 py-10">
+  <div class="card w-full max-w-5xl p-6 md:p-10">
+    <div class="text-center mb-10">
+      <h1 class="text-3xl md:text-4xl font-bold text-slate-800 mb-2">Voter Registration</h1>
+      <p class="text-slate-600">Register to participate in the upcoming elections</p>
+    </div>
+    
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12">
+      
+      <!-- Left: Form -->
+      <form id="registrationForm" class="space-y-6" enctype="multipart/form-data">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-2">Full Name</label>
+          <input type="text" id="fullName" name="fullName" placeholder="Enter your full name" required 
+                 class="form-input w-full p-3.5 rounded-lg placeholder-slate-400"/>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-2">Email ID</label>
+          <input type="email" id="email" name="email" placeholder="Enter your email address" required 
+                 class="form-input w-full p-3.5 rounded-lg placeholder-slate-400"/>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-2">Username</label>
+          <div class="relative">
+            <input type="text" id="username" name="username" placeholder="Will be generated" readonly 
+                   class="form-input w-full p-3.5 rounded-lg placeholder-slate-400"/>
+            <button type="button" onclick="generateUsername()" 
+                    class="btn-secondary absolute top-2 right-2 text-xs px-3 py-1.5 rounded-md">
+              Generate
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-2">Password</label>
+          <input type="password" id="password" name="password" placeholder="Create a secure password" required 
+                 class="form-input w-full p-3.5 rounded-lg placeholder-slate-400"/>
+        </div>
+        
+        <input type="hidden" id="photoData" name="photoData" />
+        <button type="submit" class="btn-primary w-full font-semibold py-3.5 rounded-lg shadow-sm mt-2">
+          Create Voter Profile
+        </button>
+      </form>
+
+      <!-- Right: Webcam & Capture -->
+      <div class="flex flex-col items-center justify-center">
+        <div class="mb-6 text-center">
+          <h2 class="text-xl font-semibold text-slate-800 mb-2 section-title inline-block">Identity Verification</h2>
+          <p class="text-slate-600 text-sm mt-3">Please capture a clear photo for your voter profile</p>
+        </div>
+        
+        <div class="relative w-full max-w-md mb-5">
+          <video id="webcam" autoplay class="rounded-xl border-2 border-slate-200 w-full h-64 object-cover"></video>
+          <canvas id="canvas" class="hidden w-full max-w-md h-64 rounded-xl border mb-4"></canvas>
+          <div class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30 rounded-xl hidden" id="captureOverlay">
+            <span class="text-white font-semibold bg-indigo-600 px-4 py-2 rounded-lg">Photo Captured</span>
+          </div>
+        </div>
+        
+        <button id="captureBtn" class="btn-secondary px-6 py-3 rounded-lg flex items-center font-medium">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          Take Photo
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success Modal -->
+  <div id="successModal" class="fixed inset-0 hidden bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div class="modal-content rounded-xl p-8 text-center max-w-md w-full">
+      <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
+      </div>
+      <h2 class="text-2xl font-bold text-slate-800 mb-2">Profile Created Successfully!</h2>
+      <p class="text-slate-600 mb-6">Your voter registration has been completed</p>
+      <button onclick="redirectToLogin()" class="btn-primary px-8 py-3 text-white rounded-lg font-medium">
+        Continue to Login
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const webcamElement = document.getElementById('webcam');
+    const canvasElement = document.getElementById('canvas');
+    const captureButton = document.getElementById('captureBtn');
+    const captureOverlay = document.getElementById('captureOverlay');
+    const photoDataInput = document.getElementById('photoData');
+    let webcamStream;
+
+    async function initWebcam() {
+      try {
+        webcamStream = await navigator.mediaDevices.getUserMedia({ video: true });
+        webcamElement.srcObject = webcamStream;
+      } catch (error) {
+        alert('Webcam access denied or not available.');
+      }
+    }
+
+    captureButton.addEventListener('click', () => {
+      if (captureButton.innerText.includes('Take Photo')) {
+        const context = canvasElement.getContext('2d');
+        const MAX_SIZE = 600;
+
+        let width = webcamElement.videoWidth;
+        let height = webcamElement.videoHeight;
+
+        if (width > height && width > MAX_SIZE) {
+          height = Math.floor(height * (MAX_SIZE / width));
+          width = MAX_SIZE;
+        } else if (height > MAX_SIZE) {
+          width = Math.floor(width * (MAX_SIZE / height));
+          height = MAX_SIZE;
+        }
+
+        canvasElement.width = width;
+        canvasElement.height = height;
+        context.drawImage(webcamElement, 0, 0, width, height);
+
+        photoDataInput.value = canvasElement.toDataURL('image/jpeg', 0.7);
+
+        captureOverlay.classList.remove('hidden');
+        captureButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>Retake Photo';
+      } else {
+        captureOverlay.classList.add('hidden');
+        captureButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>Take Photo';
+      }
+    });
+
+    function generateUsername() {
+      const fullName = document.getElementById('fullName').value.trim();
+      if (fullName) {
+        const username = fullName.replace(/\s+/g, '').substring(0, 6).toLowerCase() + Math.floor(Math.random() * 1000);
+        document.getElementById('username').value = username;
+      } else {
+        alert('Please enter Full Name first.');
+      }
+    }
+
+    function redirectToLogin() {
+      window.location.href = '/Voter_login';
+    }
+
+    document.getElementById('registrationForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      if (!photoDataInput.value) {
+        alert('Please capture your photo before submitting.');
+        return;
+      }
+      
+      const submitBtn = this.querySelector('button[type="submit"]');
+      submitBtn.innerHTML = 'Processing...';
+      submitBtn.disabled = true;
+      
+      try {
+        const formData = new FormData(this);
+        const response = await fetch('/register', {
+          method: 'POST',
+          body: formData
+        });
+        const result = await response.json();
+        
+        if (result.success) {
+          document.getElementById('successModal').classList.remove('hidden');
+        } else {
+          alert(result.message || "Failed to create profile. Please try again.");
+        }
+      } catch (error) {
+        alert("Network error. Please check your connection and try again.");
+      } finally {
+        submitBtn.innerHTML = 'Create Voter Profile';
+        submitBtn.disabled = false;
+      }
+    });
+
+    window.onload = initWebcam;
+  </script>
+</body>
+</html>

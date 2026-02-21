@@ -1,0 +1,6 @@
+dlib-bin
+face_recognition --no-deps
+flask
+pillow
+flask_session
+opencv-python

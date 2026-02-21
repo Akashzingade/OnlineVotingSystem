@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Face Login Election System</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #4361ee;
+      --primary-light: #4895ef;
+      --secondary: #3a0ca3;
+      --accent: #f72585;
+      --light: #f8f9fa;
+      --light-gray: #e9ecef;
+      --text: #212529;
+      --text-light: #6c757d;
+    }
+    
+    body {
+      background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 1.5rem;
+      box-shadow: 
+        0 10px 30px rgba(0, 0, 0, 0.08),
+        0 2px 6px rgba(0, 0, 0, 0.03);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      transition: all 0.3s ease;
+    }
+
+    .card:hover {
+      box-shadow: 
+        0 15px 40px rgba(0, 0, 0, 0.12),
+        0 4px 10px rgba(0, 0, 0, 0.05);
+      transform: translateY(-5px);
+    }
+
+    .btn {
+      position: relative;
+      overflow: hidden;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      border-radius: 0.75rem;
+      padding: 0.875rem 1.75rem;
+      box-shadow: 0 4px 12px rgba(67, 97, 238, 0.15);
+    }
+
+    .btn-primary {
+      background: linear-gradient(to right, var(--primary), var(--primary-light));
+      color: white;
+    }
+
+    .btn-secondary {
+      background: linear-gradient(to right, #6c757d, #8a939b);
+      color: white;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(67, 97, 238, 0.25);
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(to right, var(--secondary), var(--primary));
+    }
+
+    .btn-secondary:hover {
+      background: linear-gradient(to right, #5a6268, #6c757d);
+    }
+
+    h1 {
+      background: linear-gradient(to right, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .modal {
+      background: rgba(255, 255, 255, 0.98);
+      border-radius: 1.25rem;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      animation: modalFadeIn 0.3s ease-out;
+      color: var(--text);
+    }
+    
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: translateY(20px) scale(0.95); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    
+    .modal h2 {
+      color: var(--primary);
+      font-weight: 700;
+    }
+    
+    .modal input {
+      border: 1px solid var(--light-gray);
+      padding: 0.875rem 1rem;
+      border-radius: 0.75rem;
+      width: 100%;
+      margin-bottom: 1rem;
+      font-size: 1rem;
+      transition: all 0.2s ease;
+      background: rgba(255, 255, 255, 0.8);
+    }
+    
+    .modal input:focus {
+      outline: none;
+      border-color: var(--primary-light);
+      box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+    }
+    
+    .modal button {
+      background: linear-gradient(to right, var(--primary), var(--primary-light));
+      color: white;
+      font-weight: 600;
+      padding: 0.875rem 1.5rem;
+      border: none;
+      border-radius: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      width: 100%;
+      margin-top: 0.5rem;
+    }
+    
+    .modal button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(67, 97, 238, 0.25);
+    }
+    
+    .error-message {
+      color: #e63946;
+      font-size: 0.875rem;
+      margin-top: -0.5rem;
+      margin-bottom: 1rem;
+      text-align: left;
+    }
+    
+    .close-button {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--light-gray);
+      color: var(--text-light);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .close-button:hover {
+      background: #dee2e6;
+      transform: rotate(90deg);
+    }
+    
+    .logo-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+    }
+    
+    .logo {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 20px rgba(67, 97, 238, 0.2);
+    }
+    
+    .logo i {
+      font-size: 2.5rem;
+      color: white;
+    }
+    
+    .footer {
+      margin-top: 2rem;
+      font-size: 0.875rem;
+      color: var(--text-light);
+    }
+    
+    .image-container {
+      border-radius: 1rem;
+      overflow: hidden;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+    }
+    
+    @media (max-width: 768px) {
+      .card {
+        padding: 1.5rem;
+      }
+      
+      h1 {
+        font-size: 2.25rem;
+      }
+      
+      .button-container {
+        flex-direction: column;
+        gap: 1rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="card p-10 max-w-3xl w-full text-center">
+    <div class="logo-container">
+      <div class="logo">
+        <i class="fas fa-vote-yea"></i>
+      </div>
+    </div>
+    
+    <h1 class="text-4xl md:text-5xl font-bold mb-6">
+      Bharatiya Online Election System
+    </h1>
+    
+    <p class="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
+      Secure and transparent voting with facial recognition authentication
+    </p>
+
+    <div class="image-container mx-auto w-full max-w-md mb-8">
+      <img
+        src="\static\images\election.png"
+        alt="Election Illustration"
+        class="w-full h-64 object-cover"
+      />
+    </div>
+
+    <div class="flex flex-col sm:flex-row justify-center gap-6 mt-6 button-container">
+      <button onclick="openAdminLoginModal()" class="btn btn-primary">
+        <i class="fas fa-lock"></i> Admin Login
+      </button>
+      <a href="/Voter_login" class="block">
+        <button class="btn btn-secondary">
+          <i class="fas fa-user-graduate"></i> Voter Login
+        </button>
+      </a>
+    </div>
+    
+    <div class="footer">
+      <p>Secure • Transparent • Authentic</p>
+    </div>
+  </div>
+
+  <!-- Admin Login Modal -->
+  <div id="adminLoginModal" class="fixed inset-0 hidden bg-black/40 flex items-center justify-center z-50 px-4">
+    <div class="modal p-8 text-left w-full max-w-md relative">
+      <div class="close-button" onclick="closeAdminLoginModal()">
+        <i class="fas fa-times text-xl"></i>
+      </div>
+      
+      <div class="text-center mb-6">
+        <div class="logo mx-auto" style="width: 60px; height: 60px;">
+          <i class="fas fa-lock text-xl"></i>
+        </div>
+        <h2 class="mt-4 text-2xl font-bold">Admin Login</h2>
+        <p class="text-gray-500 mt-2">Enter your credentials to access the admin panel</p>
+      </div>
+      
+      <form id="adminLoginForm" class="space-y-4">
+        <div>
+          <label for="adminUsername" class="block text-sm font-medium text-gray-600 mb-1">Username</label>
+          <input type="text" id="adminUsername" placeholder="Enter admin username" required />
+        </div>
+        
+        <div>
+          <label for="adminPassword" class="block text-sm font-medium text-gray-600 mb-1">Password</label>
+          <input type="password" id="adminPassword" placeholder="Enter your password" required />
+        </div>
+        
+        <p id="adminErrorMessage" class="error-message"></p>
+        
+        <button type="submit">
+          <i class="fas fa-sign-in-alt mr-2"></i> Login
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Open Admin Login Modal
+    function openAdminLoginModal() {
+      document.getElementById('adminLoginModal').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    // Close Admin Login Modal
+    function closeAdminLoginModal() {
+      document.getElementById('adminLoginModal').classList.add('hidden');
+      document.body.style.overflow = 'auto';
+      // Clear form fields and error message
+      document.getElementById('adminUsername').value = '';
+      document.getElementById('adminPassword').value = '';
+      document.getElementById('adminErrorMessage').innerText = '';
+    }
+
+    document.getElementById('adminLoginForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const username = document.getElementById('adminUsername').value.trim();
+    const password = document.getElementById('adminPassword').value.trim();
+
+    if (!username || !password) {
+      document.getElementById('adminErrorMessage').innerText = 'Please fill in all fields.';
+      return;
+    }
+
+    try {
+      const response = await fetch('/admin-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        // Success animation
+        const button = this.querySelector('button');
+        const originalText = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-check"></i> Success!';
+        button.style.background = 'linear-gradient(to right, #4cc9f0, #4361ee)';
+
+        setTimeout(() => {
+          window.location.href = "/admin";  // Redirect to Admin.html
+        }, 1000);
+      } else {
+        document.getElementById('adminErrorMessage').innerText = result.message || 'Invalid username or password.';
+      }
+    } catch (error) {
+      document.getElementById('adminErrorMessage').innerText = 'Server error. Please try again.';
+    }
+  });
+
+    // Close modal when clicking outside
+    document.getElementById('adminLoginModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeAdminLoginModal();
+      }
+    });
+  </script>
+</body>
+</html>
